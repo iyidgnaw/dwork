@@ -21,8 +21,8 @@
 - **id**: T01
 - **title**: 梳理 Opencode 可复用能力清单
 - **description**: 盘点现有会话、项目、终端执行、日志相关模块，输出“复用 vs 新增”清单。
-- **assignee**: agent-architecture
-- **status**: todo
+- **assignee**: cursor-agent
+- **status**: doing
 - **dependencies**: []
 - **acceptance_criteria**:
   - 输出模块清单与对应源码路径。
@@ -34,7 +34,7 @@
 - **id**: T02
 - **title**: 定义 Task 数据模型与存储方案
 - **description**: 落实 Task 实体字段、状态机和依赖关系，保证 assignee 可筛选、可统计。
-- **assignee**: agent-backend
+- **assignee**: cursor-agent
 - **status**: todo
 - **dependencies**: [T01]
 - **acceptance_criteria**:
@@ -48,7 +48,7 @@
 - **id**: T03
 - **title**: 实现 Task Board 基础界面
 - **description**: 提供任务列表、按 assignee/status 过滤、任务详情查看与状态切换。
-- **assignee**: agent-frontend
+- **assignee**: codex-agent
 - **status**: todo
 - **dependencies**: [T02]
 - **acceptance_criteria**:
@@ -63,7 +63,7 @@
 - **id**: T04
 - **title**: 接入执行引擎与审计事件
 - **description**: 将命令执行、文件改动、测试运行统一映射为 Audit Event，并可追溯到 task_id。
-- **assignee**: agent-runtime
+- **assignee**: cursor-agent
 - **status**: todo
 - **dependencies**: [T02]
 - **acceptance_criteria**:
@@ -77,7 +77,7 @@
 - **id**: T05
 - **title**: 实现 Spec 文档联动入口
 - **description**: 在会话中可快速引用 `requirements.md`、`design.md`、`task.md` 作为上下文源。
-- **assignee**: agent-product
+- **assignee**: codex-agent
 - **status**: todo
 - **dependencies**: [T03]
 - **acceptance_criteria**:
@@ -91,7 +91,7 @@
 - **id**: T06
 - **title**: 交付总结自动生成
 - **description**: 生成任务级与会话级总结，包含变更、测试结果、风险与下一步建议。
-- **assignee**: agent-reporting
+- **assignee**: codex-agent
 - **status**: todo
 - **dependencies**: [T04, T05]
 - **acceptance_criteria**:
@@ -105,7 +105,7 @@
 - **id**: T07
 - **title**: 端到端场景验收
 - **description**: 以一个真实小需求验证“Spec → Design → Task → 执行 → 总结”闭环。
-- **assignee**: agent-qa
+- **assignee**: codex-agent
 - **status**: todo
 - **dependencies**: [T03, T04, T05, T06]
 - **acceptance_criteria**:
@@ -118,9 +118,9 @@
 ---
 
 ## 3. 建议分工策略
-- **并行组 A（架构/后端）**：T01, T02, T04
-- **并行组 B（前端/产品）**：T03, T05
-- **并行组 C（报告/测试）**：T06, T07
+- **cursor-agent**：T01, T02, T04（基础能力与执行链路）
+- **codex-agent**：T03, T05, T06, T07（界面、文档联动、总结与验收）
+- **codex pick 顺序建议**：T03 → T05 → T06 → T07（按依赖顺序执行，避免冲突）
 
 ## 4. 看板管理建议
 - 每日同步时按 `assignee` 维度过一遍阻塞项。
