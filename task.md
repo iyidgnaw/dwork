@@ -22,7 +22,7 @@
 - **title**: 梳理 Opencode 可复用能力清单
 - **description**: 盘点现有会话、项目、终端执行、日志相关模块，输出“复用 vs 新增”清单。
 - **assignee**: cursor-agent
-- **status**: doing
+- **status**: done
 - **dependencies**: []
 - **acceptance_criteria**:
   - 输出模块清单与对应源码路径。
@@ -35,7 +35,7 @@
 - **title**: 定义 Task 数据模型与存储方案
 - **description**: 落实 Task 实体字段、状态机和依赖关系，保证 assignee 可筛选、可统计。
 - **assignee**: cursor-agent
-- **status**: todo
+- **status**: done
 - **dependencies**: [T01]
 - **acceptance_criteria**:
   - Task 模型满足 requirements 中字段约束。
@@ -66,7 +66,7 @@
 - **title**: 接入执行引擎与审计事件
 - **description**: 将命令执行、文件改动、测试运行统一映射为 Audit Event，并可追溯到 task_id。
 - **assignee**: cursor-agent
-- **status**: todo
+- **status**: done
 - **dependencies**: [T02]
 - **acceptance_criteria**:
   - 关键执行动作可生成结构化事件。
