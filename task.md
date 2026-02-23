@@ -22,7 +22,7 @@
 - **title**: 梳理 Opencode 可复用能力清单
 - **description**: 盘点现有会话、项目、终端执行、日志相关模块，输出“复用 vs 新增”清单。
 - **assignee**: agent-codex
-- **status**: doing
+- **status**: done
 - **dependencies**: []
 - **acceptance_criteria**:
   - 输出模块清单与对应源码路径。
