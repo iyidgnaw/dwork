@@ -13,6 +13,7 @@ import { Task } from "./task"
 export namespace Audit {
   const log = Log.create({ service: "audit" })
   const file = new Set(["write", "edit", "apply_patch", "multiedit"])
+  const pathKeys = new Set(["path", "file", "filename", "file_path", "filepath"])
   const testPattern = /(?:^|[\s;&|])(bun test|npm test|pnpm test|yarn test|pytest|go test|cargo test|vitest|jest)(?:[\s;&|]|$)/i
   const commitPattern = /(?:^|[\s;&|])git\s+commit(?:[\s;&|]|$)/i
 
@@ -110,6 +111,38 @@ export namespace Audit {
     return Type.enum.command
   }
 
+  function collect(input: unknown, out: Set<string>) {
+    if (Array.isArray(input)) {
+      for (const item of input) collect(item, out)
+      return
+    }
+    if (typeof input !== "object" || !input) return
+    for (const [key, value] of Object.entries(input)) {
+      if (typeof value === "string" && pathKeys.has(key.toLowerCase()) && value.trim()) out.add(value.trim())
+      if (typeof value === "object" && value) collect(value, out)
+    }
+  }
+
+  function patch(input: unknown, out: Set<string>) {
+    if (typeof input !== "object" || !input) return
+    const source = input as Record<string, unknown>
+    const value = source.patch
+    if (typeof value !== "string") return
+    const files = value.matchAll(/^\*\*\*\s(?:Add|Update|Delete)\sFile:\s(.+)$/gm)
+    for (const file of files) {
+      if (!file[1]?.trim()) continue
+      out.add(file[1].trim())
+    }
+  }
+
+  function changed(part: MessageV2.ToolPart) {
+    if (!file.has(part.tool)) return []
+    const out = new Set<string>()
+    collect(part.state.input, out)
+    patch(part.state.input, out)
+    return [...out].sort()
+  }
+
   export const create = fn(
     z.object({
       session_id: z.string(),
@@ -159,6 +192,7 @@ export namespace Audit {
       tool: part.tool,
       status: part.state.status,
       input: part.state.input,
+      ...(type === Type.enum.file_change ? { changed_files: changed(part) } : {}),
       ...(part.state.status === "completed"
         ? {
             title: part.state.title,

@@ -96,9 +96,55 @@ describe("audit events", () => {
         expect(items.length).toBe(1)
         expect(items[0].type).toBe("file_change")
         const payload = items[0].payload as Record<string, unknown>
-        const changed = payload.changed_files
-        expect(Array.isArray(changed)).toBe(true)
-        expect(changed).toContain(`${tmp.path}/a.ts`)
+        expect(payload.changed_files).toEqual([`${tmp.path}/a.ts`])
+      },
+    })
+  })
+
+  test("extracts changed_files from apply_patch payload text", async () => {
+    await using tmp = await tmpdir({ git: true })
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        Audit.init()
+        const session = await Session.create({})
+        const part: MessageV2.ToolPart = {
+          id: id("part"),
+          sessionID: session.id,
+          messageID: id("msg"),
+          type: "tool",
+          callID: id("call"),
+          tool: "apply_patch",
+          state: {
+            status: "completed",
+            input: {
+              patch: [
+                "*** Begin Patch",
+                `*** Update File: ${tmp.path}/a.ts`,
+                "@@",
+                "-old",
+                "+new",
+                `*** Add File: ${tmp.path}/b.ts`,
+                "+content",
+                "*** End Patch",
+              ].join("\n"),
+            },
+            output: "ok",
+            title: "apply patch",
+            metadata: {},
+            time: {
+              start: Date.now() - 10,
+              end: Date.now(),
+            },
+          },
+        }
+        await Bus.publish(MessageV2.Event.PartUpdated, { part })
+
+        const items = await Audit.list({ session_id: session.id })
+        expect(items.length).toBe(1)
+        expect(items[0].type).toBe("file_change")
+        const payload = items[0].payload as Record<string, unknown>
+        expect(payload.changed_files).toEqual([`${tmp.path}/a.ts`, `${tmp.path}/b.ts`])
       },
     })
   })
