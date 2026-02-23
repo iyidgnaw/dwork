@@ -65,8 +65,8 @@ test("task dock supports create edit status transitions and summary copy", async
 
     const summary = dock.locator("textarea").first()
     await expect(summary).toBeVisible()
-    await expect(summary).toContainText("## Delivery Summary")
-    await expect(summary).toContainText(updated)
+    await expect(summary).toHaveValue(/## Delivery Summary/)
+    await expect(summary).toHaveValue(new RegExp(updated.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))
 
     await dock.getByRole("button", { name: "Copy" }).click()
     await expect
