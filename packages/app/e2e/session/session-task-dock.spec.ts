@@ -33,7 +33,7 @@ test("task dock supports create edit status transitions and summary copy", async
     const updated = `${title} updated`
     await dock.getByPlaceholder("title").fill(title)
     await dock.getByPlaceholder("description").fill("cover task creation and edit flow")
-    await dock.getByPlaceholder("assignee").fill("cursor-agent")
+    await dock.getByRole("textbox", { name: "assignee", exact: true }).fill("cursor-agent")
     await dock.getByPlaceholder(/acceptance criteria/i).fill("can create and update tasks")
     await dock.getByRole("button", { name: "Save" }).click()
 
