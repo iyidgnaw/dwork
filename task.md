@@ -49,7 +49,7 @@
 - **title**: 实现 Task Board 基础界面
 - **description**: 提供任务列表、按 assignee/status 过滤、任务详情查看与状态切换。
 - **assignee**: codex-agent
-- **status**: todo
+- **status**: doing
 - **dependencies**: [T02]
 - **acceptance_criteria**:
   - 可创建/编辑/查看 Task。
@@ -58,6 +58,8 @@
 - **deliverables**:
   - Task Board UI 代码
   - 基础交互测试（如适用）
+- **progress_notes**:
+  - 2026-02-23: codex-agent 已认领并启动，先完成页面信息架构与交互骨架，再补齐状态流转约束与基础测试。
 
 ### T04
 - **id**: T04
