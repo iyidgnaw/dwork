@@ -106,10 +106,19 @@ function summary(tasks: TaskInfo[], events: AuditInfo[]) {
   const blocked = tasks.filter((item) => item.status === "blocked")
 
   const files = new Set<string>()
-  const keys = new Set(["path", "file", "filename"])
   for (const event of events) {
     if (event.type !== "file_change") continue
-    collect(event.payload, keys, files)
+    const payload = event.payload as Record<string, unknown>
+    const changed = payload.changed_files
+    if (Array.isArray(changed)) {
+      for (const item of changed) {
+        if (typeof item === "string" && item.trim()) files.add(item)
+      }
+      continue
+    }
+    const input = payload.input
+    if (!input) continue
+    collect(input, new Set(["filepath"]), files)
   }
 
   const tests = events

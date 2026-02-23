@@ -95,6 +95,10 @@ describe("audit events", () => {
         const items = await Audit.list({ session_id: session.id })
         expect(items.length).toBe(1)
         expect(items[0].type).toBe("file_change")
+        const payload = items[0].payload as Record<string, unknown>
+        const changed = payload.changed_files
+        expect(Array.isArray(changed)).toBe(true)
+        expect(changed).toContain(`${tmp.path}/a.ts`)
       },
     })
   })

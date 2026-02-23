@@ -15,6 +15,10 @@ const id = (tag: string) => `e2e-${tag}-${Date.now()}-${Math.random().toString(3
 const fileFrom = (event: Audit.Info) => {
   if (event.type !== "file_change") return
   const payload = event.payload as Record<string, unknown>
+  const changed = payload.changed_files
+  if (Array.isArray(changed) && changed.length > 0) {
+    return changed[0] as string
+  }
   const input = payload.input
   if (typeof input !== "object" || !input) return
   const filePath = (input as Record<string, unknown>).filePath
