@@ -117,7 +117,7 @@
 - **title**: 端到端场景验收
 - **description**: 以一个真实小需求验证“Spec → Design → Task → 执行 → 总结”闭环。
 - **assignee**: cursor-agent
-- **status**: doing
+- **status**: done
 - **dependencies**: [T03, T04, T05, T06]
 - **acceptance_criteria**:
   - 完成至少 1 个完整闭环案例。
@@ -127,14 +127,15 @@
   - 问题 backlog
 - **progress_notes**:
   - 2026-02-23: 已建立验收文档与问题清单草案：`docs/e2e-acceptance-report.md`、`docs/e2e-backlog.md`。
-  - 2026-02-23: 下一步补充交互层人工走查记录与最终结论。
+  - 2026-02-23: 新增并通过端到端闭环测试：`packages/opencode/test/task/e2e-flow.test.ts`。
+  - 2026-02-23: 验收报告已更新为完成状态，问题清单已沉淀到 `docs/e2e-backlog.md`。
 
 ---
 
 ## 3. 建议分工策略
 - 当前由 **cursor-agent** 单独推进剩余任务。
 - 已完成顺序：T03 → T05 → T06。
-- 待完成：T07（端到端验收与问题 backlog）。
+- 已完成：T07（端到端验收与问题 backlog）。
 
 ## 3.1 当前接手说明（2026-02-23）
 - cursor-agent 已接手未完成任务：T03, T05, T06, T07。
