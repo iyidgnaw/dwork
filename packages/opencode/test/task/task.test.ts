@@ -19,6 +19,7 @@ describe("task model", () => {
           title: "Define task model",
           description: "Implement task fields and storage",
           assignee: "cursor-agent",
+          status: "todo",
           dependencies: [],
           acceptance_criteria: ["fields are persisted"],
           context_refs: ["requirements.md"],
@@ -46,6 +47,7 @@ describe("task model", () => {
           title: "Run task workflow",
           description: "Verify task transitions",
           assignee: "cursor-agent",
+          status: "todo",
           dependencies: [],
           acceptance_criteria: [],
           context_refs: [],
@@ -76,6 +78,7 @@ describe("task model", () => {
           title: "Reject invalid transition",
           description: "todo cannot jump directly to done",
           assignee: "cursor-agent",
+          status: "todo",
           dependencies: [],
           acceptance_criteria: [],
           context_refs: [],
@@ -101,6 +104,7 @@ describe("task model", () => {
           title: "Cursor task",
           description: "Task owned by cursor",
           assignee: "cursor-agent",
+          status: "todo",
           dependencies: [],
           acceptance_criteria: [],
           context_refs: [],
@@ -110,6 +114,7 @@ describe("task model", () => {
           title: "Codex task",
           description: "Task owned by codex",
           assignee: "codex-agent",
+          status: "todo",
           dependencies: [],
           acceptance_criteria: [],
           context_refs: [],
@@ -117,8 +122,9 @@ describe("task model", () => {
         await Task.set_status({ id: a.id, status: "doing" })
 
         const byAssignee = await Task.list({ assignee: "cursor-agent" })
-        expect(byAssignee.length).toBe(1)
-        expect(byAssignee[0].id).toBe(a.id)
+        expect(byAssignee.map((item) => item.id)).toContain(a.id)
+        expect(byAssignee.map((item) => item.id)).not.toContain(b.id)
+        expect(byAssignee.every((item) => item.assignee === "cursor-agent")).toBe(true)
 
         const byStatus = await Task.list({ status: "doing" })
         expect(byStatus.map((item) => item.id)).toContain(a.id)

@@ -2,6 +2,7 @@ import { Bus } from "@/bus"
 import { BusEvent } from "@/bus/bus-event"
 import { fn } from "@/util/fn"
 import { Database, NotFoundError, and, desc, eq, inArray } from "@/storage/db"
+import type { SQL } from "@/storage/db"
 import { TaskTable } from "./task.sql"
 import z from "zod"
 
@@ -38,12 +39,12 @@ export namespace Task {
     Deleted: BusEvent.define("task.deleted", z.object({ id: z.string() })),
   }
 
-  const flow = {
+  const flow: Record<Status, Status[]> = {
     todo: ["doing"],
     doing: ["blocked", "done"],
     blocked: ["doing"],
     done: [],
-  } as const
+  }
 
   type Row = typeof TaskTable.$inferSelect
 
@@ -188,7 +189,7 @@ export namespace Task {
       .optional(),
     async (input) => {
       const query = input ?? {}
-      const where = []
+      const where: SQL[] = []
       if (query.assignee) where.push(eq(TaskTable.assignee, query.assignee))
       if (query.status) where.push(eq(TaskTable.status, query.status))
       if (query.session_id) where.push(eq(TaskTable.session_id, query.session_id))
@@ -214,7 +215,7 @@ export namespace Task {
   )
 
   export function active_for_session(session_id: string) {
-    const active = ["todo", "doing", "blocked"]
+    const active: Status[] = ["todo", "doing", "blocked"]
     const row = Database.use((db) =>
       db
         .select()

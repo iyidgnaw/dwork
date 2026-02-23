@@ -2,6 +2,7 @@ import { Bus } from "@/bus"
 import { BusEvent } from "@/bus/bus-event"
 import { MessageV2 } from "@/session/message-v2"
 import { Database, NotFoundError, and, desc, eq } from "@/storage/db"
+import type { SQL } from "@/storage/db"
 import { fn } from "@/util/fn"
 import { Log } from "@/util/log"
 import { Instance } from "@/project/instance"
@@ -179,7 +180,7 @@ export namespace Audit {
       .optional(),
     async (input) => {
       const query = input ?? {}
-      const where = []
+      const where: SQL[] = []
       if (query.session_id) where.push(eq(AuditEventTable.session_id, query.session_id))
       if (query.task_id) where.push(eq(AuditEventTable.task_id, query.task_id))
       const rows = Database.use((db) => {
