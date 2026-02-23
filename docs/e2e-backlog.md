@@ -1,9 +1,19 @@
 # E2E 问题 Backlog（T07）
 
-## B1 - 缺少自动化 UI 回归
+## B1 - 缺少自动化 UI 回归 ✅
 - **优先级**: high
+- **状态**: 已完成
 - **描述**: Task Board Dock 的创建/编辑/状态流转/summary 复制尚未覆盖自动化 UI 测试。
 - **建议**: 在 `packages/app` 增加最小 e2e 场景脚本，覆盖主流程与失败提示。
+- **完成时间**: 2026-02-23
+- **交付物**: `packages/app/e2e/session/session-task-dock.spec.ts`
+- **覆盖范围**:
+  - 任务创建和编辑
+  - 状态流转（todo → doing → done）
+  - 按 assignee 和 status 过滤
+  - Summary 生成和复制
+  - Spec 文档注入（requirements.md, design.md）
+  - 无效状态转换的验证
 
 ## B2 - Summary 文件变更提取精度可提升
 - **优先级**: medium
