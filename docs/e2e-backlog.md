@@ -4,6 +4,11 @@
 - **优先级**: high
 - **描述**: Task Board Dock 的创建/编辑/状态流转/summary 复制尚未覆盖自动化 UI 测试。
 - **建议**: 在 `packages/app` 增加最小 e2e 场景脚本，覆盖主流程与失败提示。
+- **状态**: done (2026-02-23)
+- **进展**:
+  - 已新增 `packages/app/e2e/session/session-task-dock.spec.ts`，覆盖创建、编辑、状态流转、Build Summary、Copy。
+  - 已覆盖失败提示（缺少必填字段触发 toast）。
+  - 已通过定向验证：`bun test:e2e:local -- e2e/session/session-task-dock.spec.ts`。
 
 ## B2 - Summary 文件变更提取精度可提升
 - **优先级**: medium
