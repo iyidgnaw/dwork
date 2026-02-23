@@ -56,6 +56,45 @@ export namespace Audit {
     }
   }
 
+  function changedFilesFromInput(input: unknown) {
+    const files = new Set<string>()
+    const visit = (value: unknown, key?: string) => {
+      if (Array.isArray(value)) {
+        for (const item of value) visit(item, key)
+        return
+      }
+      if (typeof value === "string") {
+        if (key === "filePath") files.add(value)
+        return
+      }
+      if (typeof value !== "object" || !value) return
+      const source = value as Record<string, unknown>
+      for (const [nextKey, next] of Object.entries(source)) {
+        if (nextKey === "filePath") {
+          visit(next, nextKey)
+          continue
+        }
+        if (nextKey === "paths" && Array.isArray(next)) {
+          for (const path of next) {
+            if (typeof path === "string") files.add(path)
+          }
+          continue
+        }
+        if (nextKey === "edits" && Array.isArray(next)) {
+          for (const edit of next) {
+            if (typeof edit === "object" && edit && "filePath" in edit && typeof edit.filePath === "string") {
+              files.add(edit.filePath)
+            }
+          }
+          continue
+        }
+        visit(next, nextKey)
+      }
+    }
+    visit(input)
+    return [...files]
+  }
+
   function command(part: MessageV2.ToolPart) {
     if (part.tool !== "bash") return ""
     const input = part.state.input
@@ -149,7 +188,7 @@ export namespace Audit {
     const type = classify(part)
     if (!type) return
     const task = Task.active_for_session(part.sessionID)
-    const payload = {
+    const base = {
       tool: part.tool,
       status: part.state.status,
       input: part.state.input,
@@ -165,6 +204,15 @@ export namespace Audit {
             metadata: part.state.metadata,
           }),
     }
+    const changed_files =
+      type === Type.enum.file_change ? changedFilesFromInput(part.state.input).filter((item) => !!item) : []
+    const payload =
+      changed_files.length > 0
+        ? {
+            ...base,
+            changed_files,
+          }
+        : base
     await create({
       session_id: part.sessionID,
       task_id: task?.id,
