@@ -27,6 +27,17 @@ type TaskInfo = {
   }
 }
 
+type AuditType = "command" | "file_change" | "test" | "commit"
+
+type AuditInfo = {
+  id: string
+  task_id?: string
+  session_id: string
+  type: AuditType
+  payload: Record<string, unknown>
+  created_at: number
+}
+
 const statusFlow: Record<TaskStatus, TaskStatus[]> = {
   todo: ["doing"],
   doing: ["blocked", "done"],
@@ -58,6 +69,96 @@ function text(input: string[]) {
   return input.join("\n")
 }
 
+function collect(input: unknown, keys: Set<string>, out: Set<string>) {
+  if (Array.isArray(input)) {
+    for (const item of input) collect(item, keys, out)
+    return
+  }
+  if (typeof input !== "object" || !input) return
+
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === "string" && keys.has(key.toLowerCase())) out.add(value)
+    if (typeof value === "object" && value) collect(value, keys, out)
+  }
+}
+
+function first(input: unknown, key: string): string | undefined {
+  if (Array.isArray(input)) {
+    for (const item of input) {
+      const value = first(item, key)
+      if (value) return value
+    }
+    return
+  }
+  if (typeof input !== "object" || !input) return
+  const source = input as Record<string, unknown>
+  const direct = source[key]
+  if (typeof direct === "string" && direct.trim()) return direct
+  for (const value of Object.values(source)) {
+    const found = first(value, key)
+    if (found) return found
+  }
+}
+
+function summary(tasks: TaskInfo[], events: AuditInfo[]) {
+  const done = tasks.filter((item) => item.status === "done")
+  const next = tasks.filter((item) => item.status !== "done")
+  const blocked = tasks.filter((item) => item.status === "blocked")
+
+  const files = new Set<string>()
+  const keys = new Set(["path", "file", "filename"])
+  for (const event of events) {
+    if (event.type !== "file_change") continue
+    collect(event.payload, keys, files)
+  }
+
+  const tests = events
+    .filter((item) => item.type === "test")
+    .map((item) => {
+      const status = first(item.payload, "status")
+      const command = first(item.payload, "command") ?? first(item.payload, "title") ?? "test command"
+      const icon = status === "completed" ? "PASS" : status === "error" ? "FAIL" : "INFO"
+      return `- ${icon}: ${command}`
+    })
+
+  const risks = [
+    ...blocked.map((item) => `- [${item.id}] ${item.title} is blocked.`),
+    ...(tests.some((item) => item.startsWith("- FAIL"))
+      ? ["- At least one test command failed. Check audit timeline for details."]
+      : []),
+    ...(done.length === 0 ? ["- No completed tasks yet for this session."] : []),
+  ]
+
+  const list = done.length
+    ? done.map((item) => `- [${item.id}] ${item.title} (@${item.assignee})`).join("\n")
+    : "- none"
+  const fileList = files.size ? [...files].sort().map((item) => `- ${item}`).join("\n") : "- none"
+  const testList = tests.length ? tests.join("\n") : "- none"
+  const riskList = risks.length ? risks.join("\n") : "- none"
+  const nextList = next.length
+    ? next.map((item) => `- [${item.id}] ${item.title} (${item.status})`).join("\n")
+    : "- none"
+
+  return [
+    "## Delivery Summary",
+    "",
+    "### Completed Tasks",
+    list,
+    "",
+    "### Changes",
+    fileList,
+    "",
+    "### Test Results",
+    testList,
+    "",
+    "### Risks",
+    riskList,
+    "",
+    "### Next Steps",
+    nextList,
+  ].join("\n")
+}
+
 export function SessionTaskDock() {
   const params = useParams()
   const sdk = useSDK()
@@ -68,6 +169,9 @@ export function SessionTaskDock() {
     collapsed: true,
     loading: false,
     saving: false,
+    building: false,
+    summary: "",
+    summary_open: false,
     mode: "view" as "view" | "create" | "edit",
     selected: undefined as string | undefined,
     tasks: [] as TaskInfo[],
@@ -292,6 +396,39 @@ export function SessionTaskDock() {
     })
   }
 
+  const build = async () => {
+    const sessionID = params.id
+    if (!sessionID) return
+    setStore("building", true)
+    try {
+      const [taskData, auditData] = await Promise.all([
+        request(`/task?session_id=${sessionID}&limit=500`),
+        request(`/audit?session_id=${sessionID}&limit=1000`),
+      ])
+      const tasks = Array.isArray(taskData) ? (taskData as TaskInfo[]) : []
+      const events = Array.isArray(auditData) ? (auditData as AuditInfo[]) : []
+      setStore("summary", summary(tasks, events))
+      setStore("summary_open", true)
+    } catch (input) {
+      error(input)
+    } finally {
+      setStore("building", false)
+    }
+  }
+
+  const copy = async () => {
+    if (!store.summary.trim()) return
+    try {
+      await navigator.clipboard.writeText(store.summary)
+      showToast({
+        title: "Summary copied",
+        description: "You can paste it into PR description.",
+      })
+    } catch (input) {
+      error(input)
+    }
+  }
+
   return (
     <div data-component="session-task-dock" class="mt-2 rounded-md border border-border-weak-base bg-background-base">
       <button
@@ -354,6 +491,9 @@ export function SessionTaskDock() {
             </Show>
 
             <div class="ml-auto flex items-center gap-2">
+              <Button size="small" variant="ghost" disabled={store.building} onClick={() => void build()}>
+                {store.building ? "Building..." : "Build Summary"}
+              </Button>
               <Button size="small" variant="secondary" disabled={store.loading} onClick={() => void refresh()}>
                 Refresh
               </Button>
@@ -362,6 +502,28 @@ export function SessionTaskDock() {
               </Button>
             </div>
           </div>
+
+          <Show when={store.summary_open}>
+            <div class="rounded border border-border-weak-base bg-background-base p-2 flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                <div class="text-12-medium text-text-strong">Session Delivery Summary</div>
+                <div class="ml-auto flex items-center gap-2">
+                  <Button size="small" variant="secondary" onClick={() => void copy()}>
+                    Copy
+                  </Button>
+                  <Button size="small" variant="ghost" onClick={() => setStore("summary_open", false)}>
+                    Hide
+                  </Button>
+                </div>
+              </div>
+              <textarea
+                readOnly
+                value={store.summary}
+                rows={10}
+                class="w-full p-2 rounded border border-border-weak-base bg-background-stronger text-12-regular text-text-strong"
+              />
+            </div>
+          </Show>
 
           <div class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-2">
             <div class="max-h-72 overflow-y-auto rounded border border-border-weak-base bg-background-stronger">

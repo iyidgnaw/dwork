@@ -89,13 +89,15 @@
 - **deliverables**:
   - 文档联动入口实现
   - 基本可用性验证记录
+- **progress_notes**:
+  - 2026-02-23: 在会话 Task Board Dock 中新增 `requirements.md` / `design.md` / `task.md` 一键注入上下文入口。
 
 ### T06
 - **id**: T06
 - **title**: 交付总结自动生成
 - **description**: 生成任务级与会话级总结，包含变更、测试结果、风险与下一步建议。
 - **assignee**: cursor-agent
-- **status**: todo
+- **status**: doing
 - **dependencies**: [T04, T05]
 - **acceptance_criteria**:
   - 可从已完成任务聚合总结。
@@ -103,6 +105,8 @@
 - **deliverables**:
   - 总结生成器实现
   - 示例输出文档
+- **progress_notes**:
+  - 2026-02-23: 已开始在会话 Task Board Dock 中实现会话级交付总结自动生成与复制能力（基于 task + audit 聚合）。
 
 ### T07
 - **id**: T07
