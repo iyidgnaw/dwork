@@ -6,6 +6,7 @@ import { usePrompt } from "@/context/prompt"
 import { getSessionHandoff, setSessionHandoff } from "@/pages/session/handoff"
 import { SessionPermissionDock } from "@/pages/session/composer/session-permission-dock"
 import { SessionQuestionDock } from "@/pages/session/composer/session-question-dock"
+import { SessionTaskDock } from "@/pages/session/composer/session-task-dock"
 import type { SessionComposerState } from "@/pages/session/composer/session-composer-state"
 import { SessionTodoDock } from "@/pages/session/composer/session-todo-dock"
 
@@ -87,6 +88,10 @@ export function SessionComposerRegion(props: {
               </div>
             }
           >
+            <Show when={params.id}>
+              <SessionTaskDock />
+            </Show>
+
             <Show when={props.state.dock()}>
               <div
                 classList={{

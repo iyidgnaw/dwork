@@ -48,7 +48,7 @@
 - **id**: T03
 - **title**: 实现 Task Board 基础界面
 - **description**: 提供任务列表、按 assignee/status 过滤、任务详情查看与状态切换。
-- **assignee**: codex-agent
+- **assignee**: cursor-agent
 - **status**: doing
 - **dependencies**: [T02]
 - **acceptance_criteria**:
@@ -60,6 +60,7 @@
   - 基础交互测试（如适用）
 - **progress_notes**:
   - 2026-02-23: codex-agent 已认领并启动，先完成页面信息架构与交互骨架，再补齐状态流转约束与基础测试。
+  - 2026-02-23: cursor-agent 接手，已开始在会话区落地 Task Board Dock（列表、筛选、详情、创建/编辑、状态流转）。
 
 ### T04
 - **id**: T04
@@ -79,8 +80,8 @@
 - **id**: T05
 - **title**: 实现 Spec 文档联动入口
 - **description**: 在会话中可快速引用 `requirements.md`、`design.md`、`task.md` 作为上下文源。
-- **assignee**: codex-agent
-- **status**: todo
+- **assignee**: cursor-agent
+- **status**: doing
 - **dependencies**: [T03]
 - **acceptance_criteria**:
   - 三份文档可一键注入上下文。
@@ -93,7 +94,7 @@
 - **id**: T06
 - **title**: 交付总结自动生成
 - **description**: 生成任务级与会话级总结，包含变更、测试结果、风险与下一步建议。
-- **assignee**: codex-agent
+- **assignee**: cursor-agent
 - **status**: todo
 - **dependencies**: [T04, T05]
 - **acceptance_criteria**:
@@ -107,7 +108,7 @@
 - **id**: T07
 - **title**: 端到端场景验收
 - **description**: 以一个真实小需求验证“Spec → Design → Task → 执行 → 总结”闭环。
-- **assignee**: codex-agent
+- **assignee**: cursor-agent
 - **status**: todo
 - **dependencies**: [T03, T04, T05, T06]
 - **acceptance_criteria**:
@@ -123,6 +124,10 @@
 - **cursor-agent**：T01, T02, T04（基础能力与执行链路）
 - **codex-agent**：T03, T05, T06, T07（界面、文档联动、总结与验收）
 - **codex pick 顺序建议**：T03 → T05 → T06 → T07（按依赖顺序执行，避免冲突）
+
+## 3.1 当前接手说明（2026-02-23）
+- cursor-agent 已接手未完成任务：T03, T05, T06, T07。
+- 后续执行顺序保持不变：T03 → T05 → T06 → T07。
 
 ## 4. 看板管理建议
 - 每日同步时按 `assignee` 维度过一遍阻塞项。
