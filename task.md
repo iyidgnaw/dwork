@@ -49,7 +49,7 @@
 - **title**: 实现 Task Board 基础界面
 - **description**: 提供任务列表、按 assignee/status 过滤、任务详情查看与状态切换。
 - **assignee**: cursor-agent
-- **status**: doing
+- **status**: done
 - **dependencies**: [T02]
 - **acceptance_criteria**:
   - 可创建/编辑/查看 Task。
@@ -61,6 +61,8 @@
 - **progress_notes**:
   - 2026-02-23: codex-agent 已认领并启动，先完成页面信息架构与交互骨架，再补齐状态流转约束与基础测试。
   - 2026-02-23: cursor-agent 接手，已开始在会话区落地 Task Board Dock（列表、筛选、详情、创建/编辑、状态流转）。
+  - 2026-02-23: 已交付 `packages/app/src/pages/session/composer/session-task-dock.tsx` 与 `session-composer-region.tsx` 接入。
+  - 2026-02-23: 验证通过（pre-push `bun turbo typecheck` 全绿）。
 
 ### T04
 - **id**: T04
@@ -81,7 +83,7 @@
 - **title**: 实现 Spec 文档联动入口
 - **description**: 在会话中可快速引用 `requirements.md`、`design.md`、`task.md` 作为上下文源。
 - **assignee**: cursor-agent
-- **status**: doing
+- **status**: done
 - **dependencies**: [T03]
 - **acceptance_criteria**:
   - 三份文档可一键注入上下文。
@@ -91,13 +93,14 @@
   - 基本可用性验证记录
 - **progress_notes**:
   - 2026-02-23: 在会话 Task Board Dock 中新增 `requirements.md` / `design.md` / `task.md` 一键注入上下文入口。
+  - 2026-02-23: 注入来源可在 Prompt Context 列表中直接看到文件项。
 
 ### T06
 - **id**: T06
 - **title**: 交付总结自动生成
 - **description**: 生成任务级与会话级总结，包含变更、测试结果、风险与下一步建议。
 - **assignee**: cursor-agent
-- **status**: doing
+- **status**: done
 - **dependencies**: [T04, T05]
 - **acceptance_criteria**:
   - 可从已完成任务聚合总结。
@@ -106,14 +109,15 @@
   - 总结生成器实现
   - 示例输出文档
 - **progress_notes**:
-  - 2026-02-23: 已开始在会话 Task Board Dock 中实现会话级交付总结自动生成与复制能力（基于 task + audit 聚合）。
+  - 2026-02-23: 已在 Task Board Dock 中实现会话级交付总结自动生成与复制能力（基于 task + audit 聚合）。
+  - 2026-02-23: 示例输出已补充到 `docs/task-summary-example.md`。
 
 ### T07
 - **id**: T07
 - **title**: 端到端场景验收
 - **description**: 以一个真实小需求验证“Spec → Design → Task → 执行 → 总结”闭环。
 - **assignee**: cursor-agent
-- **status**: todo
+- **status**: doing
 - **dependencies**: [T03, T04, T05, T06]
 - **acceptance_criteria**:
   - 完成至少 1 个完整闭环案例。
@@ -121,13 +125,16 @@
 - **deliverables**:
   - 验收报告
   - 问题 backlog
+- **progress_notes**:
+  - 2026-02-23: 已建立验收文档与问题清单草案：`docs/e2e-acceptance-report.md`、`docs/e2e-backlog.md`。
+  - 2026-02-23: 下一步补充交互层人工走查记录与最终结论。
 
 ---
 
 ## 3. 建议分工策略
-- **cursor-agent**：T01, T02, T04（基础能力与执行链路）
-- **codex-agent**：T03, T05, T06, T07（界面、文档联动、总结与验收）
-- **codex pick 顺序建议**：T03 → T05 → T06 → T07（按依赖顺序执行，避免冲突）
+- 当前由 **cursor-agent** 单独推进剩余任务。
+- 已完成顺序：T03 → T05 → T06。
+- 待完成：T07（端到端验收与问题 backlog）。
 
 ## 3.1 当前接手说明（2026-02-23）
 - cursor-agent 已接手未完成任务：T03, T05, T06, T07。
