@@ -21,7 +21,6 @@ import {
 
 const specDocs = ["requirements.md", "design.md", "task.md"] as const
 
->>>>>>> origin/dev
 export function SessionTaskDock() {
   const params = useParams()
   const sdk = useSDK()

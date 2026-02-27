@@ -111,3 +111,32 @@ const table = sqliteTable("session", {
 - Avoid mocks as much as possible
 - Test actual implementation, do not duplicate logic into tests
 - Tests cannot run from repo root (guard: `do-not-run-tests-from-root`); run from package dirs like `packages/opencode`.
+
+## Cursor Cloud specific instructions
+
+### Services overview
+
+- **OpenCode core** (`packages/opencode`): The AI coding agent — CLI, TUI, headless API server with embedded SQLite. This is the main product.
+- **Web app** (`packages/app`): SolidJS web UI that connects to the core server.
+- **Desktop app** (`packages/desktop`): Tauri-based native app wrapping the web UI (requires Rust toolchain).
+- Cloud packages (console, enterprise, slack) require external services (PlanetScale, Stripe, Cloudflare) and are not needed for local development.
+
+### Running the application
+
+- `bun dev` from repo root starts the TUI (interactive terminal UI).
+- `bun dev serve` starts the headless API server on port 4096 (also serves the built web UI).
+- `bun dev web` is an alias for `bun dev serve` plus opens browser.
+- For local UI development, run the backend and app dev servers separately as documented in `packages/app/AGENTS.md`.
+
+### Running tests and checks
+
+- Typecheck: `bun typecheck` (runs `turbo typecheck` across all packages).
+- Tests: `cd packages/opencode && bun test --timeout 30000` (do NOT run from repo root).
+- Pre-push hook (`.husky/pre-push`) validates Bun version matches `package.json` `packageManager` field and runs typecheck.
+
+### Gotchas
+
+- Bun version must match `package.json` `packageManager` field (currently `bun@1.3.9`). The pre-push hook enforces this.
+- The `test` script in root `package.json` intentionally fails with "do not run tests from root". Always `cd` into the relevant package directory first.
+- API routes on the server are at `/<resource>` (e.g. `/session`, `/config`, `/provider`), not `/api/<resource>`.
+- An LLM API key (e.g. `ANTHROPIC_API_KEY`) is needed for the AI agent to function; the server starts without one but queries will fail.
